@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Scorecard diario de la Liner (Call Center) de Valcasa.">
+<title>Scorecard Liner · Valcasa</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%230A0A0A%22%2F%3E%3Ctext%20x%3D%2216%22%20y%3D%2221%22%20font-family%3D%22Helvetica%2CArial%22%20font-size%3D%2213%22%20font-weight%3D%22700%22%20fill%3D%22%23FFFFFF%22%20text-anchor%3D%22middle%22%3EVC%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Mismo sistema visual que el panel del webinar de Midstorage: neutros, Inter + JetBrains Mono, un solo acento. */
+:root{
+  color-scheme:light;
+  --ground:#F9FAFB; --surface:#FFFFFF; --surface-2:#F5F7FA;
+  --ink:#0A0A0A; --ink-2:#262626; --muted:#737373;
+  --line:rgba(10,10,10,.10); --line-strong:rgba(10,10,10,.16);
+  --accent:#0A0A0A; --on-accent:#FFFFFF;
+  --bar:#1F5FAE; --bar-soft:#C9D8EC;
+  --good:#0E7C4A; --good-soft:#EAF4EF;
+  --warn:#B26B00; --warn-soft:#FBF6EA;
+  --crit:#C0271C; --crit-soft:#FBECEA;
+  --radius:10px;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --body:"Inter",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme:dark;
+    --ground:#0A0A0A; --surface:#161616; --surface-2:#1C1C1C;
+    --ink:#FFFFFF; --ink-2:#E5E5E5; --muted:#A3A3A3;
+    --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+    --accent:#FFFFFF; --on-accent:#0A0A0A;
+    --bar:#3B82D8; --bar-soft:#24364F;
+    --good:#35A06B; --good-soft:#11241B;
+    --warn:#D2A03A; --warn-soft:#241E10;
+    --crit:#E0685C; --crit-soft:#2A1512;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground); color:var(--ink); font-family:var(--body); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+h1,h2{margin:0; letter-spacing:-.02em; text-wrap:balance}
+a{color:var(--ink); text-decoration-thickness:1px; text-underline-offset:2px}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px}
+.wrap{max-width:1180px; margin:0 auto; padding-block:28px 56px; padding-left:max(20px, env(safe-area-inset-left,0px)); padding-right:max(20px, env(safe-area-inset-right,0px)); display:grid; gap:36px}
+.eyebrow{font-family:var(--mono); font-size:10px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--muted)}
+.top{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; justify-content:space-between}
+.brand{display:flex; gap:12px; align-items:center}
+.mark{width:34px; height:34px; flex:none; border-radius:8px; background:var(--accent); color:var(--on-accent); font-family:var(--mono); font-weight:700; font-size:12px; display:grid; place-items:center}
+h1{font-size:26px; font-weight:700}
+.sub{color:var(--muted); font-size:13px; margin:2px 0 0}
+.status{font-family:var(--mono); font-size:11px; color:var(--muted); text-align:right; display:grid; gap:2px}
+.status b{color:var(--ink); font-weight:500}
+.dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--good); margin-right:6px; vertical-align:1px}
+.dot.off{background:var(--crit)}
+.lead{font-size:18px; max-width:68ch; margin:0; line-height:1.45}
+.lead b{font-variant-numeric:tabular-nums}
+.sec{display:grid; gap:14px; min-width:0}
+.sechead{display:flex; flex-wrap:wrap; gap:10px; align-items:baseline; justify-content:space-between}
+h2{font-size:18px; font-weight:600}
+.hint{color:var(--muted); font-size:12px; margin:0}
+select{font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:1px solid var(--line-strong); border-radius:8px; padding:6px 10px}
+.cards{display:grid; grid-template-columns:repeat(auto-fill, minmax(165px,1fr)); gap:12px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; display:grid; gap:4px; align-content:start; min-width:0}
+.card .lbl{font-size:12px; color:var(--muted)}
+.card .num{font-size:30px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; line-height:1.15}
+.card .note{font-size:11.5px; color:var(--muted)}
+.card.alert{border-color:var(--crit); background:var(--crit-soft)}
+.card.alert .num{color:var(--crit)}
+.card.ok .num{color:var(--good)}
+.charts{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:12px}
+.chartbox{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px 14px 8px; display:grid; gap:6px; min-width:0}
+.chart{position:relative; min-height:170px}
+.chart svg{display:block; width:100%; height:auto}
+.chart text{fill:var(--muted); font-family:var(--mono); font-size:10px}
+.tip{position:absolute; pointer-events:none; background:var(--surface); border:1px solid var(--line-strong); border-radius:8px; padding:5px 8px; font-size:12px; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.12); color:var(--ink)}
+.tabs{display:flex; flex-wrap:wrap; gap:6px}
+.tab{font:inherit; font-size:13px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); border-radius:999px; padding:6px 14px; cursor:pointer}
+.tab .n{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:6px}
+.tab[aria-selected="true"]{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+.tab[aria-selected="true"] .n{color:var(--on-accent); opacity:.75}
+.tablewrap{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius)}
+table{width:100%; border-collapse:collapse; font-size:13px}
+th{text-align:left; font-weight:500; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); padding:10px 14px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--surface-2)}
+td{padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num, th.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+td.mono{font-family:var(--mono); font-size:12px; white-space:nowrap; color:var(--ink-2)}
+.empty{color:var(--muted); padding:16px}
+.pill{display:inline-block; font-size:11px; padding:1px 8px; border-radius:999px; background:var(--warn-soft); color:var(--warn); white-space:nowrap}
+.pill.crit{background:var(--crit-soft); color:var(--crit)}
+details.defs{font-size:13px; color:var(--muted)}
+details.defs summary{cursor:pointer; color:var(--ink)}
+details.defs dl{display:grid; grid-template-columns:minmax(0,15rem) minmax(0,1fr); gap:6px 18px; margin:14px 0 0}
+details.defs dt{color:var(--ink)}
+details.defs dd{margin:0}
+.err{background:var(--crit-soft); color:var(--crit); border-radius:var(--radius); padding:12px 14px; font-size:13px}
+@media (max-width:560px){ details.defs dl{grid-template-columns:1fr} .card .num{font-size:26px} .status{text-align:left} }
+@media (prefers-reduced-motion: no-preference){ .card,.chartbox{transition:border-color .2s} }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">VC</div>
+      <div>
+        <div class="eyebrow">Valcasa · Call Center</div>
+        <h1>Scorecard de la Liner</h1>
+        <p class="sub">Tania Rodríguez · datos de Kommo y CallPicker, actualizados cada hora de 8 a 21 h</p>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span><span class="dot" id="dot"></span><b id="estado">Cargando…</b></span>
+      <span id="actualizado">—</span>
+    </div>
+  </header>
+
+  <div class="err" id="error" hidden></div>
+
+  <p class="lead" id="resumen">Cargando el último día…</p>
+
+  <section class="sec" id="dia">
+    <div class="sechead">
+      <h2>Resultados del día</h2>
+      <label class="hint">Día <select id="selector" aria-label="Día"></select></label>
+    </div>
+    <div class="cards">
+      <div class="card"><div class="lbl">Leads recibidos</div><div class="num" id="k-recibidos">—</div><div class="note">Creados en Kommo para Tania</div></div>
+      <div class="card"><div class="lbl">Llamadas por lead</div><div class="num" id="k-llamadas">—</div><div class="note" id="k-llamadas-n">CallPicker</div></div>
+      <div class="card"><div class="lbl">Mensajes por lead</div><div class="num" id="k-mensajes">—</div><div class="note" id="k-mensajes-n">WhatsApp enviados por Tania</div></div>
+      <div class="card"><div class="lbl">Asignados a asesores</div><div class="num" id="k-asignados">—</div><div class="note">A Alexia, Celina, Abraham o Luciano</div></div>
+      <div class="card"><div class="lbl">Tiempo promedio de contacto</div><div class="num" id="k-tiempo">—</div><div class="note">Horas corridas a la primera llamada</div></div>
+      <div class="card"><div class="lbl">Leads perdidos</div><div class="num" id="k-perdidos">—</div><div class="note">Closed - lost en Liner</div></div>
+      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="num" id="k-sin">—</div><div class="note">Sin llamada ni mensaje de Tania</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="pendientes">
+    <div class="sechead">
+      <h2>Pendientes ahora</h2>
+      <p class="hint">Foto de Kommo en la última actualización</p>
+    </div>
+    <div class="cards">
+      <div class="card" id="c-p-sin_atencion"><div class="lbl">Sin atención (últimos 7 días)</div><div class="num" id="p-sin_atencion">—</div></div>
+      <div class="card" id="c-p-tarea_vencida"><div class="lbl">Con tareas vencidas</div><div class="num" id="p-tarea_vencida">—</div></div>
+      <div class="card" id="c-p-sin_tarea"><div class="lbl">Sin tareas</div><div class="num" id="p-sin_tarea">—</div></div>
+      <div class="card" id="c-p-perdido"><div class="lbl">Perdidos (últimos 7 días)</div><div class="num" id="p-perdido">—</div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="tendencia">
+    <div class="sechead">
+      <h2>Últimos 30 días</h2>
+      <p class="hint">Pasa el cursor o toca una barra para ver el día. La barra gris es hoy, todavía en curso.</p>
+    </div>
+    <div class="charts">
+      <div class="chartbox"><div class="eyebrow">Leads recibidos</div><div class="chart" id="g-recibidos"></div></div>
+      <div class="chartbox"><div class="eyebrow">Llamadas por lead</div><div class="chart" id="g-llamadas"></div></div>
+      <div class="chartbox"><div class="eyebrow">Horas a la primera llamada</div><div class="chart" id="g-tiempo"></div></div>
+      <div class="chartbox"><div class="eyebrow">Sin atención</div><div class="chart" id="g-sin"></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="listas">
+    <div class="sechead">
+      <h2>Leads para retroalimentar</h2>
+      <p class="hint">Abre cada lead en Kommo para revisarlo con Tania</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Listas de leads">
+      <button type="button" class="tab" role="tab" aria-selected="true" data-tab="sin_atencion">Sin atención<span class="n" data-n="sin_atencion"></span></button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-tab="tarea_vencida">Tareas vencidas<span class="n" data-n="tarea_vencida"></span></button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-tab="sin_tarea">Sin tareas<span class="n" data-n="sin_tarea"></span></button>
+      <button type="button" class="tab" role="tab" aria-selected="false" data-tab="perdido">Perdidos<span class="n" data-n="perdido"></span></button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Lead</th><th id="h-detalle">Situación</th><th id="h-fecha">Entró</th><th class="num" id="h-horas">Horas sin contacto</th></tr></thead>
+        <tbody id="tabla"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details class="defs">
+    <summary>Cómo se calcula cada número</summary>
+    <dl>
+      <dt>Leads recibidos</dt><dd>Leads creados ese día en Kommo cuyo responsable es o fue primero Tania. No cuenta borrados ni fusionados.</dd>
+      <dt>Llamadas por lead</dt><dd>Llamadas de CallPicker a esos leads (se cruzan por teléfono) entre los leads recibidos.</dd>
+      <dt>Mensajes por lead</dt><dd>Mensajes de WhatsApp enviados con el usuario de Tania ese día entre los leads recibidos. No cuenta bots ni IA.</dd>
+      <dt>Asignados a asesores</dt><dd>Leads que pasaron de Tania a Alexia, Celina, Abraham o Luciano ese día.</dd>
+      <dt>Tiempo promedio de contacto</dt><dd>Horas corridas desde que entró el lead hasta su primera llamada; promedio de los leads del día que ya tienen llamada.</dd>
+      <dt>Leads perdidos</dt><dd>Leads que pasaron a Closed - lost en el embudo Liner ese día.</dd>
+      <dt>Sin atención</dt><dd>Leads recibidos sin ninguna llamada ni mensaje de Tania hasta la última actualización.</dd>
+      <dt>Tareas vencidas y sin tareas</dt><dd>Foto de Kommo: leads de Tania con una tarea abierta cuya fecha ya pasó, y leads activos de Tania en Liner sin ninguna tarea abierta.</dd>
+    </dl>
+  </details>
+</main>
+
+<script>
+(function () {
+  var VERSION = "20261123T181609";
+  var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
+  var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+  var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+  var COLS = {
+    sin_atencion: ["Situación", "Entró", "Horas sin contacto"],
+    tarea_vencida: ["Tarea", "Vencía", "Horas de atraso"],
+    sin_tarea: ["Etapa en Liner", "Creado", "Horas desde que entró"],
+    perdido: ["Razón de pérdida", "Se perdió", "Hace (horas)"]
+  };
+  var datos = null, diaElegido = null, tab = "sin_atencion";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function hoyCdmx() { return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Mexico_City" }).format(new Date()); }
+  function dow(f) { return new Date(f + "T12:00:00Z").getUTCDay(); }
+  function etiqueta(f, larga) { return (larga ? DIAS : CORTO)[dow(f)] + " " + f.slice(8, 10) + "/" + f.slice(5, 7); }
+  function num(v, dec) { if (v == null || v === "") return "—"; return Number(v).toLocaleString("es-MX", { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 }); }
+  function horas(min) { if (min == null || min === "") return null; return Math.round(Number(min) / 6) / 10; }
+  function txt(el, t) { if (el) el.textContent = t; }
+
+  function filaActual() {
+    var rows = datos.diario;
+    if (diaElegido && rows.some(function (r) { return r.fecha === diaElegido; })) return rows.find(function (r) { return r.fecha === diaElegido; });
+    var h = hoyCdmx(), prev = rows.filter(function (r) { return r.fecha < h; });
+    return prev.length ? prev[prev.length - 1] : rows[rows.length - 1];
+  }
+
+  function pintarDia() {
+    var r = filaActual(); if (!r) return;
+    var esHoy = r.fecha === hoyCdmx();
+    txt($("k-recibidos"), num(r.recibidos));
+    txt($("k-llamadas"), num(r.llamadas_por_lead, 1));
+    txt($("k-llamadas-n"), num(r.llamadas) + " llamadas en CallPicker");
+    txt($("k-mensajes"), num(r.mensajes_por_lead, 1));
+    txt($("k-mensajes-n"), num(r.mensajes) + " WhatsApp enviados por Tania");
+    txt($("k-asignados"), num(r.asignados));
+    var h = horas(r.tiempo_contacto_min);
+    txt($("k-tiempo"), h == null ? "sin llamadas" : num(h, 1) + " h");
+    txt($("k-perdidos"), num(r.perdidos));
+    txt($("k-sin"), num(r.sin_atencion));
+    $("c-sin").classList.toggle("alert", Number(r.sin_atencion) > 0);
+    $("c-sin").classList.toggle("ok", Number(r.sin_atencion) === 0 && Number(r.recibidos) > 0);
+
+    var lead = $("resumen");
+    lead.replaceChildren();
+    var b = function (t) { var e = document.createElement("b"); e.textContent = t; return e; };
+    lead.append(
+      (esHoy ? "Hoy, " : "El ") , b(etiqueta(r.fecha, true)), esHoy ? " (en curso), van " : ", entraron ",
+      b(num(r.recibidos)), " leads para Tania; ",
+      b(num(r.sin_atencion)), Number(r.sin_atencion) === 1 ? " sigue sin llamada ni mensaje suyo." : " siguen sin llamada ni mensaje suyo.",
+      " Hoy tiene ", b(num(contar("tarea_vencida"))), " leads con tareas vencidas."
+    );
+  }
+
+  function contar(tipo) { return datos.pendientes.filter(function (p) { return p.tipo === tipo; }).length; }
+
+  function pintarPendientes() {
+    ["sin_atencion", "tarea_vencida", "sin_tarea", "perdido"].forEach(function (t) {
+      var n = contar(t);
+      txt($("p-" + t), num(n));
+      $("c-p-" + t).classList.toggle("alert", n > 0 && t !== "perdido");
+      var s = document.querySelector('[data-n="' + t + '"]'); if (s) s.textContent = n;
+    });
+  }
+
+  function pintarSelector() {
+    var sel = $("selector"), h = hoyCdmx(), actual = filaActual().fecha;
+    sel.replaceChildren.apply(sel, datos.diario.slice().reverse().map(function (r) {
+      return new Option(etiqueta(r.fecha) + (r.fecha === h ? " (hoy, en curso)" : ""), r.fecha);
+    }));
+    sel.value = actual;
+  }
+
+  function barras(id, valor, fmt) {
+    var el = $(id); el.replaceChildren();
+    var rows = datos.diario, h = hoyCdmx();
+    var W = Math.max(260, el.clientWidth || 300), H = 170, m = { t: 10, r: 6, b: 20, l: 30 };
+    var vals = rows.map(function (r) { var v = valor(r); return v == null ? null : Number(v); });
+    var max = Math.max.apply(null, vals.map(function (v) { return v || 0; })) || 1;
+    var paso = Math.pow(10, Math.floor(Math.log10(max))); var top = Math.ceil(max / paso) * paso;
+    if (top / paso <= 2) paso = paso / 2;
+    var iw = W - m.l - m.r, ih = H - m.t - m.b, bw = iw / rows.length;
+    var y = function (v) { return m.t + ih - (v / top) * ih; };
+    var NS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", el.previousElementSibling.textContent + ", últimos 30 días");
+    var mk = function (tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+    for (var t = 0; t <= top + 1e-9; t += paso) {
+      mk("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: "var(--line)" });
+      var lab = mk("text", { x: m.l - 6, y: y(t) + 3, "text-anchor": "end" }); lab.textContent = num(t, paso < 1 ? 1 : 0);
+    }
+    var cada = Math.max(1, Math.ceil(rows.length / Math.max(2, Math.floor(iw / 56))));
+    var tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true;
+    rows.forEach(function (r, i) {
+      var v = vals[i] || 0, x = m.l + i * bw + bw * 0.15, w = bw * 0.7;
+      var rect = mk("rect", { x: x, y: y(v), width: w, height: Math.max(0, y(0) - y(v)), rx: 2, fill: r.fecha === h ? "var(--bar-soft)" : "var(--bar)" });
+      var hit = mk("rect", { x: m.l + i * bw, y: m.t, width: bw, height: ih, fill: "transparent" });
+      var show = function () {
+        tip.textContent = etiqueta(r.fecha) + (r.fecha === h ? " (en curso)" : "") + ": " + (vals[i] == null ? "sin dato" : fmt(vals[i]));
+        tip.hidden = false;
+        var px = (m.l + i * bw + bw / 2) / W * el.clientWidth;
+        tip.style.left = Math.min(Math.max(0, px - tip.offsetWidth / 2), el.clientWidth - tip.offsetWidth) + "px";
+        tip.style.top = "0px";
+        rect.setAttribute("fill", "var(--ink)");
+      };
+      var hide = function () { tip.hidden = true; rect.setAttribute("fill", r.fecha === h ? "var(--bar-soft)" : "var(--bar)"); };
+      hit.addEventListener("mouseenter", show); hit.addEventListener("mouseleave", hide);
+      hit.addEventListener("touchstart", show, { passive: true });
+      if (i % cada === 0) { var l = mk("text", { x: m.l + i * bw + bw / 2, y: H - 5, "text-anchor": "middle" }); l.textContent = r.fecha.slice(8, 10) + "/" + r.fecha.slice(5, 7); }
+    });
+    el.append(svg, tip);
+  }
+
+  function pintarGraficas() {
+    barras("g-recibidos", function (r) { return r.recibidos; }, function (v) { return num(v) + " leads"; });
+    barras("g-llamadas", function (r) { return r.llamadas_por_lead; }, function (v) { return num(v, 1) + " llamadas por lead"; });
+    barras("g-tiempo", function (r) { return horas(r.tiempo_contacto_min); }, function (v) { return num(v, 1) + " h"; });
+    barras("g-sin", function (r) { return r.sin_atencion; }, function (v) { return num(v) + " sin atención"; });
+  }
+
+  function pintarTabla() {
+    var c = COLS[tab]; txt($("h-detalle"), c[0]); txt($("h-fecha"), c[1]); txt($("h-horas"), c[2]);
+    var body = $("tabla"); body.replaceChildren();
+    var rows = datos.pendientes.filter(function (p) { return p.tipo === tab; });
+    if (!rows.length) { var tr0 = document.createElement("tr"); var td0 = document.createElement("td"); td0.colSpan = 4; td0.className = "empty"; td0.textContent = "Ningún lead en esta lista ahora."; tr0.append(td0); body.append(tr0); return; }
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var tdN = document.createElement("td");
+      var url = String(r.link || "");
+      if (/^https:\/\//.test(url)) { var a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; a.textContent = r.nombre || ("Lead " + r.lead_id); tdN.append(a); } else tdN.textContent = r.nombre || "";
+      var tdD = document.createElement("td"); tdD.textContent = r.detalle || "";
+      var tdF = document.createElement("td"); tdF.className = "mono"; tdF.textContent = r.fecha || "";
+      var tdH = document.createElement("td"); tdH.className = "num";
+      var hh = r.horas == null || r.horas === "" ? null : Number(r.horas);
+      if (hh == null) tdH.textContent = "—";
+      else {
+        var p = document.createElement("span"); p.className = "pill" + (hh >= 48 && tab !== "perdido" ? " crit" : "");
+        p.textContent = hh >= 48 ? num(hh) + " h · " + num(hh / 24, 1) + " d" : num(hh) + " h";
+        if (tab === "perdido") { tdH.textContent = p.textContent; } else tdH.append(p);
+      }
+      tr.append(tdN, tdD, tdF, tdH); body.append(tr);
+    });
+  }
+
+  function pintar() {
+    if (!datos || !datos.diario || !datos.diario.length) return;
+    pintarSelector(); pintarPendientes(); pintarDia(); pintarGraficas(); pintarTabla();
+    txt($("actualizado"), datos.actualizado ? "Datos de " + datos.actualizado + " (CDMX)" : "—");
+  }
+
+  function cargar() {
+    fetch(API + "&_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (d) {
+        datos = d; $("error").hidden = true;
+        $("dot").classList.remove("off"); txt($("estado"), "En vivo");
+        pintar();
+      })
+      .catch(function () {
+        $("dot").classList.add("off"); txt($("estado"), "Sin conexión");
+        if (!datos) { var e = $("error"); e.hidden = false; e.textContent = "No se pudieron cargar los datos. Se vuelve a intentar en un minuto."; }
+      });
+  }
+
+  function revisarVersion() {
+    fetch("version.txt?_=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.text() : null; })
+      .then(function (t) {
+        if (!t) return; var v = t.trim();
+        if (!v || v === VERSION) return;
+        if (/[?&]v=/.test(location.search) && decodeURIComponent(location.search.replace(/.*[?&]v=([^&]*).*/, "$1")) === v) return;
+        location.replace(location.pathname + "?v=" + encodeURIComponent(v) + location.hash);
+      }).catch(function () { });
+  }
+
+  $("selector").addEventListener("change", function () { diaElegido = this.value; pintarDia(); });
+  document.querySelectorAll(".tab").forEach(function (b) {
+    b.addEventListener("click", function () {
+      tab = b.getAttribute("data-tab");
+      document.querySelectorAll(".tab").forEach(function (x) { x.setAttribute("aria-selected", x === b ? "true" : "false"); });
+      if (datos) pintarTabla();
+    });
+  });
+  var rz; window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { if (datos) pintarGraficas(); }, 150); });
+
+  cargar(); revisarVersion();
+  setInterval(cargar, 60000); setInterval(revisarVersion, 300000);
+})();
+</script>
+</body>
+</html>
