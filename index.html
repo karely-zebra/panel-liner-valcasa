@@ -131,12 +131,13 @@ details.defs dd{margin:0}
     </div>
     <div class="cards">
       <div class="card"><div class="lbl">Leads recibidos</div><div class="num" id="k-recibidos">—</div><div class="note" id="k-recibidos-n">Nuevos en Liner + reingresos</div></div>
+      <div class="card"><div class="lbl">Descartados a la primera</div><div class="num" id="k-descartados">—</div><div class="note">Venta perdida sin pasar por intentos (p. ej. otro estado)</div></div>
       <div class="card"><div class="lbl">Llamadas por lead</div><div class="num" id="k-llamadas">—</div><div class="note" id="k-llamadas-n">CallPicker</div></div>
       <div class="card"><div class="lbl">Mensajes por lead</div><div class="num" id="k-mensajes">—</div><div class="note" id="k-mensajes-n">WhatsApp enviados por Tania</div></div>
       <div class="card"><div class="lbl">Asignados a asesores</div><div class="num" id="k-asignados">—</div><div class="note">A Alexia, Celina, Abraham o Luciano</div></div>
       <div class="card"><div class="lbl">Tiempo promedio de contacto</div><div class="num" id="k-tiempo">—</div><div class="note">Horas corridas a la primera llamada</div></div>
       <div class="card"><div class="lbl">Leads perdidos</div><div class="num" id="k-perdidos">—</div><div class="note">Closed - lost en Liner</div></div>
-      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="num" id="k-sin">—</div><div class="note">Sin llamada ni mensaje de Tania</div></div>
+      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="num" id="k-sin">—</div><div class="note" id="k-sin-n">Sin llamada ni mensaje de Tania</div></div>
     </div>
   </section>
 
@@ -189,12 +190,13 @@ details.defs dd{margin:0}
     <summary>Cómo se calcula cada número</summary>
     <dl>
       <dt>Leads recibidos</dt><dd>Leads nuevos que nacieron ese día en el embudo Liner de Kommo (no cuenta los creados directo en Ventas ni los del embudo CallPicker), más los reingresos del día (misma fuente que el reporte de cuenta). A los reingresos solo se les cuentan las llamadas desde que volvieron a entrar.</dd>
-      <dt>Llamadas por lead</dt><dd>Llamadas de CallPicker a esos leads (se cruzan por teléfono) entre los leads recibidos.</dd>
-      <dt>Mensajes por lead</dt><dd>Mensajes de WhatsApp enviados con el usuario de Tania ese día entre los leads recibidos. No cuenta bots ni IA.</dd>
+      <dt>Llamadas por lead</dt><dd>Llamadas de CallPicker a esos leads (se cruzan por teléfono) entre los leads a trabajar (sin descartados).</dd>
+      <dt>Mensajes por lead</dt><dd>Mensajes de WhatsApp enviados con el usuario de Tania ese día entre los leads a trabajar (sin descartados). No cuenta bots ni IA.</dd>
       <dt>Asignados a asesores</dt><dd>Leads que pasaron de Tania a Alexia, Celina, Abraham o Luciano ese día.</dd>
       <dt>Tiempo promedio de contacto</dt><dd>Horas corridas desde que entró el lead hasta su primera llamada; promedio de los leads del día que ya tienen llamada.</dd>
       <dt>Leads perdidos</dt><dd>Leads que pasaron a Closed - lost en el embudo Liner ese día.</dd>
-      <dt>Sin atención</dt><dd>Leads recibidos sin ninguna llamada ni mensaje de Tania hasta la última actualización.</dd>
+      <dt>Descartados a la primera</dt><dd>Leads cuyo primer movimiento fue a venta perdida, sin pasar por intentos (por ejemplo, buscan casa en otro estado). Siguen en recibidos, pero no cuentan como sin atención ni en los promedios por lead.</dd>
+      <dt>Sin atención</dt><dd>Leads a trabajar (recibidos menos descartados) sin ninguna llamada ni mensaje de Tania hasta la última actualización.</dd>
       <dt>Tareas vencidas y sin tareas</dt><dd>Foto de Kommo: leads de Tania con una tarea abierta cuya fecha ya pasó, y leads activos de Tania en Liner sin ninguna tarea abierta.</dd>
     </dl>
   </details>
@@ -202,7 +204,7 @@ details.defs dd{margin:0}
 
 <script>
 (function () {
-  var VERSION = "20261123T183319";
+  var VERSION = "20261123T191319";
   var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -234,6 +236,7 @@ details.defs dd{margin:0}
     var esHoy = r.fecha === hoyCdmx();
     txt($("k-recibidos"), num(r.recibidos));
     txt($("k-recibidos-n"), r.reingresos != null ? num(r.nuevos) + " nuevos + " + num(r.reingresos) + (Number(r.reingresos) === 1 ? " reingreso" : " reingresos") : "Nuevos en Liner + reingresos");
+    txt($("k-descartados"), num(r.descartados));
     txt($("k-llamadas"), num(r.llamadas_por_lead, 1));
     txt($("k-llamadas-n"), num(r.llamadas) + " llamadas en CallPicker");
     txt($("k-mensajes"), num(r.mensajes_por_lead, 1));
@@ -243,6 +246,7 @@ details.defs dd{margin:0}
     txt($("k-tiempo"), h == null ? "sin llamadas" : num(h, 1) + " h");
     txt($("k-perdidos"), num(r.perdidos));
     txt($("k-sin"), num(r.sin_atencion));
+    txt($("k-sin-n"), "de " + num(Number(r.recibidos) - Number(r.descartados || 0)) + " leads a trabajar");
     $("c-sin").classList.toggle("alert", Number(r.sin_atencion) > 0);
     $("c-sin").classList.toggle("ok", Number(r.sin_atencion) === 0 && Number(r.recibidos) > 0);
 
