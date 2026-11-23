@@ -72,6 +72,9 @@ select{font:inherit; font-size:13px; color:var(--ink); background:var(--surface)
 .card.alert{border-color:var(--crit); background:var(--crit-soft)}
 .card.alert .num{color:var(--crit)}
 .card.ok .num{color:var(--good)}
+.dual{display:flex; gap:14px; align-items:baseline; flex-wrap:wrap}
+.dual .sub2{font-size:11px; color:var(--muted); display:block; letter-spacing:.02em}
+.dual .num2{font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink-2)}
 .charts{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:12px}
 .chartbox{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:14px 14px 8px; display:grid; gap:6px; min-width:0}
 .chart{position:relative; min-height:170px}
@@ -143,12 +146,12 @@ details.defs dd{margin:0}
     <div class="cards">
       <div class="card"><div class="lbl">Leads recibidos</div><div class="num" id="k-recibidos">—</div><div class="note" id="k-recibidos-n">Nuevos en Liner + reingresos</div></div>
       <div class="card"><div class="lbl">Descartados a la primera</div><div class="num" id="k-descartados">—</div><div class="note">Venta perdida sin pasar por intentos (p. ej. otro estado)</div></div>
-      <div class="card"><div class="lbl">Llamadas por lead</div><div class="num" id="k-llamadas">—</div><div class="note" id="k-llamadas-n">CallPicker</div></div>
+      <div class="card"><div class="lbl">Llamadas por lead</div><div class="dual"><div><span class="sub2">Al cierre</span><span class="num" id="k-llamadas-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-llamadas">—</span></div></div><div class="note" id="k-llamadas-n">CallPicker</div></div>
       <div class="card"><div class="lbl">Mensajes por lead</div><div class="num" id="k-mensajes">—</div><div class="note" id="k-mensajes-n">WhatsApp enviados por Tania</div></div>
       <div class="card"><div class="lbl">Asignados a asesores</div><div class="num" id="k-asignados">—</div><div class="note">A Alexia, Celina, Abraham o Luciano</div></div>
-      <div class="card"><div class="lbl">Tiempo promedio de contacto</div><div class="num" id="k-tiempo">—</div><div class="note">Horas corridas a la primera llamada</div></div>
+      <div class="card"><div class="lbl">Tiempo promedio de contacto</div><div class="dual"><div><span class="sub2">Al cierre</span><span class="num" id="k-tiempo-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-tiempo">—</span></div></div><div class="note" id="k-tiempo-n">Horas corridas a la primera llamada</div></div>
       <div class="card"><div class="lbl">Leads perdidos</div><div class="num" id="k-perdidos">—</div><div class="note">Closed - lost en Liner</div></div>
-      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="num" id="k-sin">—</div><div class="note" id="k-sin-n">Sin llamada ni mensaje de Tania</div></div>
+      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="dual"><div><span class="sub2">Al cierre del día</span><span class="num" id="k-sin-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-sin">—</span></div></div><div class="note" id="k-sin-n">Sin llamada ni mensaje de Tania</div></div>
     </div>
   </section>
 
@@ -172,9 +175,9 @@ details.defs dd{margin:0}
     </div>
     <div class="charts">
       <div class="chartbox"><div class="eyebrow">Leads recibidos</div><div class="chart" id="g-recibidos"></div></div>
-      <div class="chartbox"><div class="eyebrow">Llamadas por lead</div><div class="chart" id="g-llamadas"></div></div>
-      <div class="chartbox"><div class="eyebrow">Horas a la primera llamada</div><div class="chart" id="g-tiempo"></div></div>
-      <div class="chartbox"><div class="eyebrow">Sin atención</div><div class="chart" id="g-sin"></div></div>
+      <div class="chartbox"><div class="eyebrow">Llamadas por lead (al cierre)</div><div class="chart" id="g-llamadas"></div></div>
+      <div class="chartbox"><div class="eyebrow">Horas a la primera llamada (al cierre)</div><div class="chart" id="g-tiempo"></div></div>
+      <div class="chartbox"><div class="eyebrow">Sin atención al cierre del día</div><div class="chart" id="g-sin"></div></div>
     </div>
   </section>
 
@@ -207,6 +210,7 @@ details.defs dd{margin:0}
       <dt>Tiempo promedio de contacto</dt><dd>Horas corridas desde que entró el lead hasta su primera llamada; promedio de los leads del día que ya tienen llamada.</dd>
       <dt>Leads perdidos</dt><dd>Leads que pasaron a Closed - lost en el embudo Liner ese día.</dd>
       <dt>Descartados a la primera</dt><dd>Leads cuyo primer movimiento fue a venta perdida, sin pasar por intentos (por ejemplo, buscan casa en otro estado). Siguen en recibidos, pero no cuentan como sin atención ni en los promedios por lead.</dd>
+      <dt>Al cierre vs. ahora</dt><dd>"Al cierre" es cómo terminó cada día a las 11:59 pm y ya no cambia aunque Tania atienda después; sirve para medirla. "Ahora" es cómo va en la última actualización; sirve para saber qué falta por atender. En un rango se suman los cierres de cada día.</dd>
       <dt>Sin atención</dt><dd>Leads a trabajar (recibidos menos descartados) sin ninguna llamada ni mensaje de Tania hasta la última actualización.</dd>
       <dt>Tareas vencidas y sin tareas</dt><dd>Foto de Kommo: leads de Tania con una tarea abierta cuya fecha ya pasó, y leads activos de Tania en Liner sin ninguna tarea abierta.</dd>
     </dl>
@@ -215,7 +219,7 @@ details.defs dd{margin:0}
 
 <script>
 (function () {
-  var VERSION = "20261123T211721";
+  var VERSION = "20261123T220029";
   var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -250,7 +254,10 @@ details.defs dd{margin:0}
     return { dias: sel.length, desde: rango.desde, hasta: rango.hasta, recibidos: rec, nuevos: S("nuevos"), whatsapp: S("nuevos_whatsapp"), reingresos: S("reingresos"), descartados: desc,
       llamadas: S("llamadas"), mensajes: S("mensajes"), asignados: S("asignados"), perdidos: S("perdidos"), sin_atencion: S("sin_atencion"),
       llamadas_por_lead: nt ? Math.round(S("llamadas") / nt * 10) / 10 : 0, mensajes_por_lead: nt ? Math.round(S("mensajes") / nt * 10) / 10 : 0,
-      tiempo_contacto_min: ct ? S("tiempo_suma_min") / ct : null };
+      tiempo_contacto_min: ct ? S("tiempo_suma_min") / ct : null,
+      sin_atencion_cierre: S("sin_atencion_cierre"), llamadas_cierre: S("llamadas_cierre"), descartados_cierre: S("descartados_cierre"),
+      llamadas_por_lead_cierre: (rec - S("descartados_cierre")) ? Math.round(S("llamadas_cierre") / (rec - S("descartados_cierre")) * 10) / 10 : 0,
+      tiempo_cierre_min: S("con_tiempo_cierre") ? S("tiempo_suma_cierre") / S("con_tiempo_cierre") : null, con_tiempo: ct, con_tiempo_cierre: S("con_tiempo_cierre") };
   }
 
   function pintarDia() {
@@ -261,17 +268,22 @@ details.defs dd{margin:0}
     txt($("k-recibidos-n"), num(r.nuevos - r.whatsapp) + " de formulario" + (r.whatsapp ? " + " + num(r.whatsapp) + " de WhatsApp/llamada" : "") + " + " + num(r.reingresos) + (Number(r.reingresos) === 1 ? " reingreso" : " reingresos"));
     txt($("k-descartados"), num(r.descartados));
     txt($("k-llamadas"), num(r.llamadas_por_lead, 1));
-    txt($("k-llamadas-n"), num(r.llamadas) + " llamadas en CallPicker");
+    txt($("k-llamadas-c"), num(r.llamadas_por_lead_cierre, 1));
+    txt($("k-llamadas-n"), num(r.llamadas_cierre) + " al cierre · " + num(r.llamadas) + " hasta ahora");
     txt($("k-mensajes"), num(r.mensajes_por_lead, 1));
     txt($("k-mensajes-n"), num(r.mensajes) + " WhatsApp enviados por Tania");
     txt($("k-asignados"), num(r.asignados));
     var h = horas(r.tiempo_contacto_min);
-    txt($("k-tiempo"), h == null ? "sin llamadas" : num(h, 1) + " h");
+    txt($("k-tiempo"), h == null ? "—" : num(h, 1) + " h");
+    var hc = r.tiempo_cierre_min == null ? null : Math.round(r.tiempo_cierre_min / 6) / 10;
+    txt($("k-tiempo-c"), hc == null ? "—" : num(hc, 1) + " h");
+    txt($("k-tiempo-n"), "Con llamada: " + num(r.con_tiempo_cierre) + " al cierre · " + num(r.con_tiempo) + " ahora");
     txt($("k-perdidos"), num(r.perdidos));
     txt($("k-sin"), num(r.sin_atencion));
+    txt($("k-sin-c"), num(r.sin_atencion_cierre));
     txt($("k-sin-n"), "de " + num(Number(r.recibidos) - Number(r.descartados || 0)) + " leads a trabajar");
-    $("c-sin").classList.toggle("alert", Number(r.sin_atencion) > 0);
-    $("c-sin").classList.toggle("ok", Number(r.sin_atencion) === 0 && Number(r.recibidos) > 0);
+    $("c-sin").classList.toggle("alert", Number(r.sin_atencion_cierre) > 0);
+    $("c-sin").classList.toggle("ok", Number(r.sin_atencion_cierre) === 0 && Number(r.recibidos) > 0);
 
     var lead = $("resumen");
     lead.replaceChildren();
@@ -279,7 +291,7 @@ details.defs dd{margin:0}
     lead.append(
       unDia ? (esHoy ? "Hoy, " : "El ") : "Del ", b(unDia ? etiqueta(r.desde, true) : etiqueta(r.desde) + " al " + etiqueta(r.hasta)), unDia ? (esHoy ? " (en curso), van " : ", entraron ") : " entraron ",
       b(num(r.recibidos)), " leads para Tania; ",
-      b(num(r.sin_atencion)), Number(r.sin_atencion) === 1 ? " sigue sin llamada ni mensaje suyo." : " siguen sin llamada ni mensaje suyo.",
+      (esHoy ? "" : "al cierre quedaron "), b(num(esHoy ? r.sin_atencion : r.sin_atencion_cierre)), esHoy ? " siguen sin llamada ni mensaje suyo" : " sin llamada ni mensaje suyo", esHoy ? "." : (" y hoy siguen así " + num(r.sin_atencion) + "."),
       " Hoy tiene ", b(num(contar("tarea_vencida"))), " leads con tareas vencidas."
     );
   }
@@ -346,9 +358,9 @@ details.defs dd{margin:0}
 
   function pintarGraficas() {
     barras("g-recibidos", function (r) { return r.recibidos; }, function (v) { return num(v) + " leads"; });
-    barras("g-llamadas", function (r) { return r.llamadas_por_lead; }, function (v) { return num(v, 1) + " llamadas por lead"; });
-    barras("g-tiempo", function (r) { return horas(r.tiempo_contacto_min); }, function (v) { return num(v, 1) + " h"; });
-    barras("g-sin", function (r) { return r.sin_atencion; }, function (v) { return num(v) + " sin atención"; });
+    barras("g-llamadas", function (r) { return r.llamadas_por_lead_cierre != null ? r.llamadas_por_lead_cierre : r.llamadas_por_lead; }, function (v) { return num(v, 1) + " llamadas por lead"; });
+    barras("g-tiempo", function (r) { return r.con_tiempo_cierre != null ? (r.con_tiempo_cierre ? horas(r.tiempo_suma_cierre / r.con_tiempo_cierre) : null) : horas(r.tiempo_contacto_min); }, function (v) { return num(v, 1) + " h"; });
+    barras("g-sin", function (r) { return r.sin_atencion_cierre != null ? r.sin_atencion_cierre : r.sin_atencion; }, function (v) { return num(v) + " sin atención al cierre"; });
   }
 
   function pintarTabla() {
