@@ -130,7 +130,7 @@ details.defs dd{margin:0}
       <label class="hint">Día <select id="selector" aria-label="Día"></select></label>
     </div>
     <div class="cards">
-      <div class="card"><div class="lbl">Leads recibidos</div><div class="num" id="k-recibidos">—</div><div class="note">Creados en Kommo para Tania</div></div>
+      <div class="card"><div class="lbl">Leads recibidos</div><div class="num" id="k-recibidos">—</div><div class="note" id="k-recibidos-n">Nuevos en Liner + reingresos</div></div>
       <div class="card"><div class="lbl">Llamadas por lead</div><div class="num" id="k-llamadas">—</div><div class="note" id="k-llamadas-n">CallPicker</div></div>
       <div class="card"><div class="lbl">Mensajes por lead</div><div class="num" id="k-mensajes">—</div><div class="note" id="k-mensajes-n">WhatsApp enviados por Tania</div></div>
       <div class="card"><div class="lbl">Asignados a asesores</div><div class="num" id="k-asignados">—</div><div class="note">A Alexia, Celina, Abraham o Luciano</div></div>
@@ -188,7 +188,7 @@ details.defs dd{margin:0}
   <details class="defs">
     <summary>Cómo se calcula cada número</summary>
     <dl>
-      <dt>Leads recibidos</dt><dd>Leads creados ese día en Kommo cuyo responsable es o fue primero Tania. No cuenta borrados ni fusionados.</dd>
+      <dt>Leads recibidos</dt><dd>Leads nuevos que nacieron ese día en el embudo Liner de Kommo (no cuenta los creados directo en Ventas ni los del embudo CallPicker), más los reingresos del día (misma fuente que el reporte de cuenta). A los reingresos solo se les cuentan las llamadas desde que volvieron a entrar.</dd>
       <dt>Llamadas por lead</dt><dd>Llamadas de CallPicker a esos leads (se cruzan por teléfono) entre los leads recibidos.</dd>
       <dt>Mensajes por lead</dt><dd>Mensajes de WhatsApp enviados con el usuario de Tania ese día entre los leads recibidos. No cuenta bots ni IA.</dd>
       <dt>Asignados a asesores</dt><dd>Leads que pasaron de Tania a Alexia, Celina, Abraham o Luciano ese día.</dd>
@@ -202,7 +202,7 @@ details.defs dd{margin:0}
 
 <script>
 (function () {
-  var VERSION = "20261123T181609";
+  var VERSION = "20261123T183319";
   var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -233,6 +233,7 @@ details.defs dd{margin:0}
     var r = filaActual(); if (!r) return;
     var esHoy = r.fecha === hoyCdmx();
     txt($("k-recibidos"), num(r.recibidos));
+    txt($("k-recibidos-n"), r.reingresos != null ? num(r.nuevos) + " nuevos + " + num(r.reingresos) + (Number(r.reingresos) === 1 ? " reingreso" : " reingresos") : "Nuevos en Liner + reingresos");
     txt($("k-llamadas"), num(r.llamadas_por_lead, 1));
     txt($("k-llamadas-n"), num(r.llamadas) + " llamadas en CallPicker");
     txt($("k-mensajes"), num(r.mensajes_por_lead, 1));
