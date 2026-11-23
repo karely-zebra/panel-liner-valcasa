@@ -200,7 +200,7 @@ details.defs dd{margin:0}
   <details class="defs">
     <summary>Cómo se calcula cada número</summary>
     <dl>
-      <dt>Leads recibidos</dt><dd>Leads nuevos que nacieron ese día en el embudo Liner de Kommo (no cuenta los creados directo en Ventas ni los del embudo CallPicker), más los reingresos del día (misma fuente que el reporte de cuenta). A los reingresos solo se les cuentan las llamadas desde que volvieron a entrar.</dd>
+      <dt>Leads recibidos</dt><dd>Leads nuevos que nacieron ese día en el embudo Liner de Kommo (no cuenta los creados directo en Ventas ni los del embudo CallPicker), más los reingresos del día (misma fuente que el reporte de cuenta). Los nuevos incluyen los de formulario de Meta (los que cuenta Zebrabot) y los que entran por WhatsApp o llamada. A los reingresos solo se les cuentan las llamadas desde que volvieron a entrar.</dd>
       <dt>Llamadas por lead</dt><dd>Llamadas de CallPicker a esos leads (se cruzan por teléfono) entre los leads a trabajar (sin descartados).</dd>
       <dt>Mensajes por lead</dt><dd>Mensajes de WhatsApp enviados con el usuario de Tania ese día entre los leads a trabajar (sin descartados). No cuenta bots ni IA.</dd>
       <dt>Asignados a asesores</dt><dd>Leads que pasaron de Tania a Alexia, Celina, Abraham o Luciano ese día.</dd>
@@ -215,7 +215,7 @@ details.defs dd{margin:0}
 
 <script>
 (function () {
-  var VERSION = "20261123T211356";
+  var VERSION = "20261123T211721";
   var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -247,7 +247,7 @@ details.defs dd{margin:0}
     var sel = rows.filter(function (r) { return r.fecha >= rango.desde && r.fecha <= rango.hasta; });
     var S = function (k) { return sel.reduce(function (a, r) { return a + (Number(r[k]) || 0); }, 0); };
     var rec = S("recibidos"), desc = S("descartados"), nt = rec - desc, ct = S("con_tiempo");
-    return { dias: sel.length, desde: rango.desde, hasta: rango.hasta, recibidos: rec, nuevos: S("nuevos"), reingresos: S("reingresos"), descartados: desc,
+    return { dias: sel.length, desde: rango.desde, hasta: rango.hasta, recibidos: rec, nuevos: S("nuevos"), whatsapp: S("nuevos_whatsapp"), reingresos: S("reingresos"), descartados: desc,
       llamadas: S("llamadas"), mensajes: S("mensajes"), asignados: S("asignados"), perdidos: S("perdidos"), sin_atencion: S("sin_atencion"),
       llamadas_por_lead: nt ? Math.round(S("llamadas") / nt * 10) / 10 : 0, mensajes_por_lead: nt ? Math.round(S("mensajes") / nt * 10) / 10 : 0,
       tiempo_contacto_min: ct ? S("tiempo_suma_min") / ct : null };
@@ -258,7 +258,7 @@ details.defs dd{margin:0}
     var unDia = r.desde === r.hasta, esHoy = unDia && r.desde === hoyCdmx();
     txt($("periodo-txt"), unDia ? "· " + etiqueta(r.desde, true) : "· del " + etiqueta(r.desde) + " al " + etiqueta(r.hasta) + " (" + r.dias + " días)");
     txt($("k-recibidos"), num(r.recibidos));
-    txt($("k-recibidos-n"), r.reingresos != null ? num(r.nuevos) + " nuevos + " + num(r.reingresos) + (Number(r.reingresos) === 1 ? " reingreso" : " reingresos") : "Nuevos en Liner + reingresos");
+    txt($("k-recibidos-n"), num(r.nuevos - r.whatsapp) + " de formulario" + (r.whatsapp ? " + " + num(r.whatsapp) + " de WhatsApp/llamada" : "") + " + " + num(r.reingresos) + (Number(r.reingresos) === 1 ? " reingreso" : " reingresos"));
     txt($("k-descartados"), num(r.descartados));
     txt($("k-llamadas"), num(r.llamadas_por_lead, 1));
     txt($("k-llamadas-n"), num(r.llamadas) + " llamadas en CallPicker");
