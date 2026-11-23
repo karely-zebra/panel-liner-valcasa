@@ -151,7 +151,7 @@ details.defs dd{margin:0}
       <div class="card"><div class="lbl">Asignados a asesores</div><div class="num" id="k-asignados">—</div><div class="note">A Alexia, Celina, Abraham o Luciano</div></div>
       <div class="card"><div class="lbl">Tiempo promedio de contacto</div><div class="dual"><div><span class="sub2">Al cierre</span><span class="num" id="k-tiempo-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-tiempo">—</span></div></div><div class="note" id="k-tiempo-n">Horas corridas a la primera llamada</div></div>
       <div class="card"><div class="lbl">Leads perdidos</div><div class="num" id="k-perdidos">—</div><div class="note">Closed - lost en Liner</div></div>
-      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="dual"><div><span class="sub2">Al cierre del día</span><span class="num" id="k-sin-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-sin">—</span></div></div><div class="note" id="k-sin-n">Sin llamada ni mensaje de Tania</div></div>
+      <div class="card" id="c-sin"><div class="lbl">Sin atención</div><div class="dual"><div><span class="sub2">Al cierre de su turno</span><span class="num" id="k-sin-c">—</span></div><div><span class="sub2">Ahora</span><span class="num2" id="k-sin">—</span></div></div><div class="note" id="k-sin-n">Sin llamada ni mensaje de Tania</div></div>
     </div>
   </section>
 
@@ -177,7 +177,7 @@ details.defs dd{margin:0}
       <div class="chartbox"><div class="eyebrow">Leads recibidos</div><div class="chart" id="g-recibidos"></div></div>
       <div class="chartbox"><div class="eyebrow">Llamadas por lead (al cierre)</div><div class="chart" id="g-llamadas"></div></div>
       <div class="chartbox"><div class="eyebrow">Horas a la primera llamada (al cierre)</div><div class="chart" id="g-tiempo"></div></div>
-      <div class="chartbox"><div class="eyebrow">Sin atención al cierre del día</div><div class="chart" id="g-sin"></div></div>
+      <div class="chartbox"><div class="eyebrow">Sin atención al cierre de su turno (por día de entrada)</div><div class="chart" id="g-sin"></div></div>
     </div>
   </section>
 
@@ -211,6 +211,7 @@ details.defs dd{margin:0}
       <dt>Leads perdidos</dt><dd>Leads que pasaron a Closed - lost en el embudo Liner ese día.</dd>
       <dt>Descartados a la primera</dt><dd>Leads cuyo primer movimiento fue a venta perdida, sin pasar por intentos (por ejemplo, buscan casa en otro estado). Siguen en recibidos, pero no cuentan como sin atención ni en los promedios por lead.</dd>
       <dt>Al cierre vs. ahora</dt><dd>"Al cierre" es cómo terminó cada día a las 11:59 pm y ya no cambia aunque Tania atienda después; sirve para medirla. "Ahora" es cómo va en la última actualización; sirve para saber qué falta por atender. En un rango se suman los cierres de cada día.</dd>
+      <dt>Turno de Tania</dt><dd>Lunes a viernes de 9 a 6, sin días festivos oficiales. Cada lead tiene hasta el fin del día hábil que le toca: si entra de lunes a viernes antes de las 6 pm, ese mismo día; si entra después de las 6, en fin de semana o festivo, el siguiente día hábil. "Sin atención al cierre de su turno" cuenta los que llegaron a ese límite sin llamada ni mensaje de Tania.</dd>
       <dt>Sin atención</dt><dd>Leads a trabajar (recibidos menos descartados) sin ninguna llamada ni mensaje de Tania hasta la última actualización.</dd>
       <dt>Tareas vencidas y sin tareas</dt><dd>Foto de Kommo: leads de Tania con una tarea abierta cuya fecha ya pasó, y leads activos de Tania en Liner sin ninguna tarea abierta.</dd>
     </dl>
@@ -219,7 +220,7 @@ details.defs dd{margin:0}
 
 <script>
 (function () {
-  var VERSION = "20261123T220029";
+  var VERSION = "20261123T220934";
   var API = "https://n8n-n8n.9qd6cz.easypanel.host/webhook/valcasa-liner?k=32ef28b09b7ed198a2e2b17b";
   var DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   var CORTO = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -255,7 +256,7 @@ details.defs dd{margin:0}
       llamadas: S("llamadas"), mensajes: S("mensajes"), asignados: S("asignados"), perdidos: S("perdidos"), sin_atencion: S("sin_atencion"),
       llamadas_por_lead: nt ? Math.round(S("llamadas") / nt * 10) / 10 : 0, mensajes_por_lead: nt ? Math.round(S("mensajes") / nt * 10) / 10 : 0,
       tiempo_contacto_min: ct ? S("tiempo_suma_min") / ct : null,
-      sin_atencion_cierre: S("sin_atencion_cierre"), llamadas_cierre: S("llamadas_cierre"), descartados_cierre: S("descartados_cierre"),
+      sin_atencion_cierre: S("sin_atencion_cierre"), sin_atencion_turno: S("sin_atencion_turno"), turno_vencidos: S("turno_vencidos"), en_horario: S("en_horario"), llamadas_cierre: S("llamadas_cierre"), descartados_cierre: S("descartados_cierre"),
       llamadas_por_lead_cierre: (rec - S("descartados_cierre")) ? Math.round(S("llamadas_cierre") / (rec - S("descartados_cierre")) * 10) / 10 : 0,
       tiempo_cierre_min: S("con_tiempo_cierre") ? S("tiempo_suma_cierre") / S("con_tiempo_cierre") : null, con_tiempo: ct, con_tiempo_cierre: S("con_tiempo_cierre") };
   }
@@ -280,10 +281,10 @@ details.defs dd{margin:0}
     txt($("k-tiempo-n"), "Con llamada: " + num(r.con_tiempo_cierre) + " al cierre · " + num(r.con_tiempo) + " ahora");
     txt($("k-perdidos"), num(r.perdidos));
     txt($("k-sin"), num(r.sin_atencion));
-    txt($("k-sin-c"), num(r.sin_atencion_cierre));
-    txt($("k-sin-n"), "de " + num(Number(r.recibidos) - Number(r.descartados || 0)) + " leads a trabajar");
-    $("c-sin").classList.toggle("alert", Number(r.sin_atencion_cierre) > 0);
-    $("c-sin").classList.toggle("ok", Number(r.sin_atencion_cierre) === 0 && Number(r.recibidos) > 0);
+    txt($("k-sin-c"), num(r.sin_atencion_turno));
+    txt($("k-sin-n"), "Turno: de " + num(r.turno_vencidos) + " leads que le tocaban (L-V 9 a 6) · " + num(r.en_horario) + " entraron en horario");
+    $("c-sin").classList.toggle("alert", Number(r.sin_atencion_turno) > 0);
+    $("c-sin").classList.toggle("ok", Number(r.sin_atencion_turno) === 0 && Number(r.turno_vencidos) > 0);
 
     var lead = $("resumen");
     lead.replaceChildren();
@@ -291,7 +292,7 @@ details.defs dd{margin:0}
     lead.append(
       unDia ? (esHoy ? "Hoy, " : "El ") : "Del ", b(unDia ? etiqueta(r.desde, true) : etiqueta(r.desde) + " al " + etiqueta(r.hasta)), unDia ? (esHoy ? " (en curso), van " : ", entraron ") : " entraron ",
       b(num(r.recibidos)), " leads para Tania; ",
-      (esHoy ? "" : "al cierre quedaron "), b(num(esHoy ? r.sin_atencion : r.sin_atencion_cierre)), esHoy ? " siguen sin llamada ni mensaje suyo" : " sin llamada ni mensaje suyo", esHoy ? "." : (" y hoy siguen así " + num(r.sin_atencion) + "."),
+      (esHoy ? "" : "de los que le tocaban en su turno, "), b(num(esHoy ? r.sin_atencion : r.sin_atencion_turno)), esHoy ? " siguen sin llamada ni mensaje suyo" : " quedaron sin llamada ni mensaje suyo", esHoy ? "." : (" y hoy siguen así " + num(r.sin_atencion) + "."),
       " Hoy tiene ", b(num(contar("tarea_vencida"))), " leads con tareas vencidas."
     );
   }
@@ -360,7 +361,7 @@ details.defs dd{margin:0}
     barras("g-recibidos", function (r) { return r.recibidos; }, function (v) { return num(v) + " leads"; });
     barras("g-llamadas", function (r) { return r.llamadas_por_lead_cierre != null ? r.llamadas_por_lead_cierre : r.llamadas_por_lead; }, function (v) { return num(v, 1) + " llamadas por lead"; });
     barras("g-tiempo", function (r) { return r.con_tiempo_cierre != null ? (r.con_tiempo_cierre ? horas(r.tiempo_suma_cierre / r.con_tiempo_cierre) : null) : horas(r.tiempo_contacto_min); }, function (v) { return num(v, 1) + " h"; });
-    barras("g-sin", function (r) { return r.sin_atencion_cierre != null ? r.sin_atencion_cierre : r.sin_atencion; }, function (v) { return num(v) + " sin atención al cierre"; });
+    barras("g-sin", function (r) { return r.sin_atencion_turno != null ? r.sin_atencion_turno : r.sin_atencion; }, function (v) { return num(v) + " sin atención al cierre de su turno"; });
   }
 
   function pintarTabla() {
